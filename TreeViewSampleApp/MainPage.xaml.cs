@@ -4,6 +4,7 @@ using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -49,7 +50,8 @@ namespace TreeViewSampleApp
             };
         }
 
-        private const int DELAY = 10;
+        private const int DELAY_LIST = 10;
+        private const int DELAY_POINT = 15;
 
 
         #region Properties
@@ -146,7 +148,7 @@ namespace TreeViewSampleApp
                     return false;
                 }
                 targetList.Add(CreateListNode(c1));
-                await Task.Delay(DELAY);
+                await Task.Delay(DELAY_LIST);
             }
 
             foreach (CheckPoint c2 in DataStorage.Singleton.getPointsbyFilter(parent.List_ID))
@@ -157,7 +159,7 @@ namespace TreeViewSampleApp
                     return false;
                 }
                 targetList.Add(CreatePointNode(c2));
-                await Task.Delay(DELAY);
+                await Task.Delay(DELAY_POINT);
             }
             return true;
         }

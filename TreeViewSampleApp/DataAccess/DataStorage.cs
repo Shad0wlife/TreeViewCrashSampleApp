@@ -49,7 +49,7 @@ namespace DataLibrary.DataAccess
                 for (int cntLoop = 0; cntLoop < 50; cntLoop++)
                 {
                     checkPoints.Add(new CheckPoint() { List_ID = main, PointName = "Point"+cntPoint, PointDescription="PointDesc "+cntPoint });
-                    cntList++;
+                    cntPoint++;
                 }
             }
         }

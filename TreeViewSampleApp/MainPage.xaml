@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:models="using:DataLibrary.Models"
+    xmlns:basemodels="using:DataLibrary.Models.Base"
     xmlns:mtkc="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:util="using:TreeViewSampleApp.Util"
     mc:Ignorable="d"
@@ -16,7 +17,24 @@
         <DataTemplate x:Key="FallbackTemplate">
             <TextBlock Text="Fallback Template used!"/>
         </DataTemplate>
+        
+        <!-- Debugging Templates for crash free execution -->
+        <!--
+        <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
+            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
+                <TextBlock Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
+            </muxc:TreeViewItem>
+        </DataTemplate>
 
+        <DataTemplate x:Key="PointNodeTemplate" x:DataType="muxc:TreeViewNode">
+            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
+                <TextBox Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
+            </muxc:TreeViewItem>
+        </DataTemplate>
+        -->
+        
+        <!-- Real Templates-->
+        
         <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
                 <TextBlock Text="{x:Bind ((models:CheckList)Content).ListName, Mode=OneWay}"/>
@@ -52,6 +70,7 @@
                 </mtkc:Expander>
             </muxc:TreeViewItem>
         </DataTemplate>
+        
 
         <util:TreeViewItemTemplateSelector x:Key="Selector"
                                             DefaultTemplate="{StaticResource FallbackTemplate}"
