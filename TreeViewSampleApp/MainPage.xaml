@@ -1,0 +1,91 @@
+﻿<Page
+    x:Class="TreeViewSampleApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TreeViewSampleApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:models="using:DataLibrary.Models"
+    xmlns:mtkc="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:util="using:TreeViewSampleApp.Util"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <DataTemplate x:Key="FallbackTemplate">
+            <TextBlock Text="Fallback Template used!"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
+            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
+                <TextBlock Text="{x:Bind ((models:CheckList)Content).ListName, Mode=OneWay}"/>
+            </muxc:TreeViewItem>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PointNodeTemplate" x:DataType="muxc:TreeViewNode">
+            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
+                <mtkc:Expander VerticalAlignment="Top" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="-36,2,20,2" Expanded="ExpanderPoint_Expanded" Collapsed="ExpanderPoint_Collapsed">
+                    <mtkc:Expander.Header>
+                        <TextBlock Text="{x:Bind ((models:CheckPoint)Content).PointName, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalTextAlignment="Left"/>
+                    </mtkc:Expander.Header>
+                    <StackPanel>
+                        <TextBlock Text="$Punktname:"/>
+                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).PointName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="False"/>
+                        <TextBlock Text="$Beschreibung:"/>
+                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).PointDescription, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <TextBlock Text="$Hilfe:"/>
+                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).HelpText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <TextBlock Text="$Notizen:"/>
+                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).Note, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="$Save" 
+                                    Click="SaveButton_Click"
+                                    Margin="5"
+                                    IsEnabled="{x:Bind ((models:CheckPoint)Content).IsChanged, Mode=OneWay}"/>
+                            <Button Content="$AddAttachment"
+                                    Click="AttachmentButton_Click"
+                                    Margin="5"
+                                    IsEnabled="False"/>
+                        </StackPanel>
+                    </StackPanel>
+                </mtkc:Expander>
+            </muxc:TreeViewItem>
+        </DataTemplate>
+
+        <util:TreeViewItemTemplateSelector x:Key="Selector"
+                                            DefaultTemplate="{StaticResource FallbackTemplate}"
+                                            ListTemplate="{StaticResource ListNodeTemplate}"
+                                            PointTemplate="{StaticResource PointNodeTemplate}"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Select a List in the Combobox. Then, while the contents are loading, switch the selection to another Combobox."/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Selection: "/>
+        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{x:Bind ComboBoxOptions, Mode=OneWay}" SelectedItem="{x:Bind ComboBoxSelected, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:CheckList">
+                    <TextBlock Text="{x:Bind ListName}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        
+        <muxc:TreeView x:Name="Tree"
+                       Grid.Row="2"
+                       Grid.ColumnSpan="2"
+                       Expanding="Tree_Expanding"
+                       Collapsed="Tree_Collapsed"
+                       ItemTemplateSelector="{StaticResource Selector}"/>
+    </Grid>
+</Page>
