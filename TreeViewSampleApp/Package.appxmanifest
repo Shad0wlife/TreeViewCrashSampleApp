@@ -7,7 +7,7 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="2ab7dbf7-3d36-4e52-a250-7273296c8c40"
+    Name="TreeViewSampleApp.TestPackage"
     Publisher="CN=IXE5KT"
     Version="1.0.0.0" />
 

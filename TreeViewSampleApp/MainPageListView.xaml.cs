@@ -1,8 +1,10 @@
 ﻿using DataLibrary.DataAccess;
 using DataLibrary.Models;
+using DataLibrary.Models.Base;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -30,9 +32,9 @@ namespace TreeViewSampleApp
     /// <summary>
     /// Eine leere Seite, die eigenständig verwendet oder zu der innerhalb eines Rahmens navigiert werden kann.
     /// </summary>
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class MainPageListView : Page, INotifyPropertyChanged
     {
-        public MainPage()
+        public MainPageListView()
         {
             this.InitializeComponent();
 
@@ -41,11 +43,12 @@ namespace TreeViewSampleApp
 
         private void InitializeView()
         {
+            MainList.ItemsSource = new ObservableCollection<ModelBase>();
             this.PropertyChanged += async (sender, args) => {
                 if (args.PropertyName == nameof(ComboBoxSelected))
                 {
                     cts?.Cancel();
-                    await InitializeTreeView();
+                    await InitializeListView();
                 }
             };
         }
@@ -84,61 +87,45 @@ namespace TreeViewSampleApp
             }
         }
 
-        public MUXC.TreeViewNode SelectedNode
+        public ListViewItem SelectedItem
         {
             get
             {
-                return Tree.SelectedNode;
+                return MainList.SelectedItem as ListViewItem;
             }
         }
 
-        public bool SelectedNodeIsList
+        public bool SelectedItemIsChecklist
         {
             get
             {
-                if (Tree.SelectedNode == null)
+                if (MainList.SelectedItem as ListViewItem == null)
                 {
                     return false;
                 }
-                return Tree.SelectedNode.Content is CheckList;
+                return ((ListViewItem)MainList.SelectedItem).Content is CheckList;
             }
         }
 
         private void UpdateSelectionProperties()
         {
-            this.NotifyPropertyChanged(nameof(SelectedNode));
-            this.NotifyPropertyChanged(nameof(SelectedNodeIsList));
+            this.NotifyPropertyChanged(nameof(SelectedItem));
+            this.NotifyPropertyChanged(nameof(SelectedItemIsChecklist));
         }
 
         #endregion
 
-        private async Task InitializeTreeView()
+        private async Task InitializeListView()
         {
-            Tree.RootNodes.Clear();
+            ((System.Collections.IList)MainList.ItemsSource).Clear();
             await Task.Delay(50);
             this.cts = new CancellationTokenSource();
-            await FillNodeListWithData(Tree.RootNodes, this.ComboBoxSelected, cts.Token);
+            await FillListWithData((IList<ModelBase>)MainList.ItemsSource, this.ComboBoxSelected, cts.Token);
         }
 
         #region Filling
 
-        private CancellableTreeViewNode CreateListNode(CheckList list)
-        {
-            CancellableTreeViewNode newNode = new CancellableTreeViewNode();
-            newNode.Content = list;
-            newNode.HasUnrealizedChildren = true;
-            newNode.TokenSource = new CancellationTokenSource();
-            return newNode;
-        }
-
-        private MUXC.TreeViewNode CreatePointNode(CheckPoint point)
-        {
-            MUXC.TreeViewNode newNode = new MUXC.TreeViewNode();
-            newNode.Content = point;
-            return newNode;
-        }
-
-        private async Task<bool> FillNodeListWithData(IList<MUXC.TreeViewNode> targetList, CheckList parent, CancellationToken token)
+        private async Task<bool> FillListWithData(IList<ModelBase> targetList, CheckList parent, CancellationToken token)
         {
             foreach(CheckList c1 in DataStorage.Singleton.getListsbyFilter(parent.List_ID))
             {
@@ -147,7 +134,7 @@ namespace TreeViewSampleApp
                     targetList.Clear();
                     return false;
                 }
-                targetList.Add(CreateListNode(c1));
+                targetList.Add(c1);
                 await Task.Delay(DELAY_LIST);
             }
 
@@ -158,73 +145,24 @@ namespace TreeViewSampleApp
                     targetList.Clear();
                     return false;
                 }
-                targetList.Add(CreatePointNode(c2));
+                targetList.Add(c2);
                 await Task.Delay(DELAY_POINT);
             }
             return true;
-        }
-
-        private async Task FillNode(MUXC.TreeViewNode node)
-        {
-            if (node.Content is CheckList && node.HasUnrealizedChildren)
-            {
-                CheckList list = (CheckList)node.Content;
-                CancellationToken token;
-                if (node is CancellableTreeViewNode)
-                {
-                    token = ((CancellableTreeViewNode)node).TokenSource.Token;
-                }
-                else
-                {
-                    token = new CancellationToken(false);
-                }
-
-                bool finished = await FillNodeListWithData(node.Children, list, token);
-                if (finished)
-                {
-                    node.HasUnrealizedChildren = false;
-                }
-                else
-                {
-                    node.HasUnrealizedChildren = true;
-                }
-            }
         }
 
         #endregion
 
         #region Events
 
-        private async void Tree_Expanding(MUXC.TreeView sender, MUXC.TreeViewExpandingEventArgs args)
-        {
-            if (args.Node.HasUnrealizedChildren)
-            {
-                if (args.Node is CancellableTreeViewNode)
-                {
-                    ((CancellableTreeViewNode)args.Node).TokenSource = new CancellationTokenSource();
-                }
-                await FillNode(args.Node);
-            }
-        }
-
-        private void Tree_Collapsed(MUXC.TreeView sender, MUXC.TreeViewCollapsedEventArgs args)
-        {
-            if (args.Node is CancellableTreeViewNode)
-            {
-                ((CancellableTreeViewNode)args.Node).TokenSource.Cancel();
-            }
-            args.Node.Children.Clear();
-            args.Node.HasUnrealizedChildren = true;
-        }
-
-        private void TreeViewItem_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        private void ListViewItem_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if (!e.Handled)
             {
                 FrameworkElement target = (FrameworkElement)sender;
                 if (target is MUXC.TreeViewItem tvi)
                 {
-                    Tree.SelectedNode = Tree.NodeFromContainer(tvi);
+                    ListViewItem item = MainList.SelectedItem as ListViewItem;
                     UpdateSelectionProperties();
                 }
                 e.Handled = true;
@@ -234,21 +172,20 @@ namespace TreeViewSampleApp
         private void ExpanderPoint_Expanded(object sender, EventArgs e)
         {
 
-            ((CheckPoint)((MUXC.TreeViewNode)((Expander)sender).DataContext).Content).backupToOrig();
+            ((CheckPoint)((Expander)sender).DataContext).backupToOrig();
         }
 
         private void ExpanderPoint_Collapsed(object sender, EventArgs e)
         {
-            ((CheckPoint)((MUXC.TreeViewNode)((Expander)sender).DataContext).Content).restoreFromOrig();
+            ((CheckPoint)((Expander)sender).DataContext).restoreFromOrig();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            MUXC.TreeViewNode node = button.DataContext as MUXC.TreeViewNode;
-            if (node != null)
+            CheckPoint point = button.DataContext as CheckPoint;
+            if (point != null)
             {
-                CheckPoint point = (CheckPoint)node.Content;
                 point.backupToOrig();
             }
         }
@@ -258,11 +195,10 @@ namespace TreeViewSampleApp
             throw new NotImplementedException();
         }
 
-        private void ListViewButton_Click(object sender, RoutedEventArgs e)
+        private void TreeViewButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(MainPageListView));
+            this.Frame.Navigate(typeof(MainPage));
         }
-
         #endregion
 
     }

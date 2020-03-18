@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="TreeViewSampleApp.MainPage"
+    x:Class="TreeViewSampleApp.MainPageListView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:TreeViewSampleApp"
@@ -19,46 +19,46 @@
         </DataTemplate>
         
         <!-- Debugging Templates for crash free execution -->
-        <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
-            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
-                <TextBlock Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
-            </muxc:TreeViewItem>
+        <DataTemplate x:Key="ListNodeTemplate" x:DataType="basemodels:ModelBase">
+            <ListViewItem HorizontalContentAlignment="Stretch" RightTapped="ListViewItem_RightTapped">
+                <TextBlock Text="{x:Bind MyType, Mode=OneWay}"/>
+            </ListViewItem>
         </DataTemplate>
 
-        <DataTemplate x:Key="PointNodeTemplate" x:DataType="muxc:TreeViewNode">
-            <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
-                <TextBox Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
-            </muxc:TreeViewItem>
+        <DataTemplate x:Key="PointNodeTemplate" x:DataType="basemodels:ModelBase">
+            <ListViewItem HorizontalContentAlignment="Stretch" RightTapped="ListViewItem_RightTapped">
+                <TextBox Text="{x:Bind MyType, Mode=OneWay}" IsReadOnly="True"/>
+            </ListViewItem>
         </DataTemplate>
 
         <!-- Real Templates-->
         <!--
-        <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
+        <DataTemplate x:Key="ListNodeTemplate" x:DataType="models:CheckList">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
-                <TextBlock Text="{x:Bind ((models:CheckList)Content).ListName, Mode=OneWay}"/>
+                <TextBlock Text="{x:Bind ListName, Mode=OneWay}"/>
             </muxc:TreeViewItem>
         </DataTemplate>
 
-        <DataTemplate x:Key="PointNodeTemplate" x:DataType="muxc:TreeViewNode">
+        <DataTemplate x:Key="PointNodeTemplate" x:DataType="models:CheckPoint">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
                 <mtkc:Expander VerticalAlignment="Top" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="-36,2,20,2" Expanded="ExpanderPoint_Expanded" Collapsed="ExpanderPoint_Collapsed">
                     <mtkc:Expander.Header>
-                        <TextBlock Text="{x:Bind ((models:CheckPoint)Content).PointName, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalTextAlignment="Left"/>
+                        <TextBlock Text="{x:Bind PointName, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalTextAlignment="Left"/>
                     </mtkc:Expander.Header>
                     <StackPanel>
                         <TextBlock Text="$Punktname:"/>
-                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).PointName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="False"/>
+                        <TextBox Text="{x:Bind PointName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="False"/>
                         <TextBlock Text="$Beschreibung:"/>
-                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).PointDescription, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <TextBox Text="{x:Bind PointDescription, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
                         <TextBlock Text="$Hilfe:"/>
-                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).HelpText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <TextBox Text="{x:Bind HelpText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
                         <TextBlock Text="$Notizen:"/>
-                        <TextBox Text="{x:Bind ((models:CheckPoint)Content).Note, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <TextBox Text="{x:Bind Note, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Content="$Save" 
                                     Click="SaveButton_Click"
                                     Margin="5"
-                                    IsEnabled="{x:Bind ((models:CheckPoint)Content).IsChanged, Mode=OneWay}"/>
+                                    IsEnabled="{x:Bind IsChanged, Mode=OneWay}"/>
                             <Button Content="$AddAttachment"
                                     Click="AttachmentButton_Click"
                                     Margin="5"
@@ -70,7 +70,7 @@
         </DataTemplate>
         -->
 
-        <util:TreeViewItemTemplateSelector x:Key="Selector"
+        <util:ListViewItemTemplateSelector x:Key="Selector"
                                             DefaultTemplate="{StaticResource FallbackTemplate}"
                                             ListTemplate="{StaticResource ListNodeTemplate}"
                                             PointTemplate="{StaticResource PointNodeTemplate}"/>
@@ -98,13 +98,11 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Button Grid.Row="1" Grid.Column="2" Content="Switch to ListView" Click="ListViewButton_Click"/>
+        <Button Grid.Row="1" Grid.Column="2" Content="Switch to TreeView" Click="TreeViewButton_Click"/>
 
-        <muxc:TreeView x:Name="Tree"
+        <ListView x:Name="MainList"
                        Grid.Row="2"
                        Grid.ColumnSpan="3"
-                       Expanding="Tree_Expanding"
-                       Collapsed="Tree_Collapsed"
                        ItemTemplateSelector="{StaticResource Selector}"/>
     </Grid>
 </Page>
