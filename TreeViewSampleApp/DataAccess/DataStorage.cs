@@ -30,13 +30,19 @@ namespace DataLibrary.DataAccess
 
         private DataStorage()
         {
-            checkLists.Add(new CheckList() { List_ID = 0, ListName = "List0", ParentList = null });
-            checkLists.Add(new CheckList() { List_ID = 1, ListName = "List1", ParentList = null });
-            checkLists.Add(new CheckList() { List_ID = 2, ListName = "List2", ParentList = null });
+            const int numSelections = 3;
+            const int numElemsLarge = 80;
+            const int numElemsSmall = 5;
 
-            int cntList = 3;
-            for (int main = 0; main <= 2; main++) {
-                for (int cntLoop = 0; cntLoop < 50; cntLoop++)
+            int mainNum;
+            for (mainNum = 0; mainNum < numSelections; mainNum++)
+            {
+                checkLists.Add(new CheckList() { List_ID = mainNum, ListName = "List" + mainNum, ParentList = null });
+            }
+
+            int cntList = mainNum;
+            for (int main = 0; main < mainNum-1; main++) {
+                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
                 {
                     checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = main });
                     cntList++;
@@ -44,13 +50,26 @@ namespace DataLibrary.DataAccess
             }
 
             int cntPoint = 0;
-            for (int main = 0; main <= 2; main++)
+            for (int main = 0; main < mainNum - 1; main++)
             {
-                for (int cntLoop = 0; cntLoop < 50; cntLoop++)
+                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
                 {
                     checkPoints.Add(new CheckPoint() { List_ID = main, PointName = "Point"+cntPoint, PointDescription="PointDesc "+cntPoint });
                     cntPoint++;
                 }
+            }
+
+            //One Selection with few elements
+            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
+            {
+                checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = mainNum-1 });
+                cntList++;
+            }
+
+            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
+            {
+                checkPoints.Add(new CheckPoint() { List_ID = mainNum-1, PointName = "Point" + cntPoint, PointDescription = "PointDesc " + cntPoint });
+                cntPoint++;
             }
         }
 

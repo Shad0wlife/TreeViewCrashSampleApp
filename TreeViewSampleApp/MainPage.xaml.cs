@@ -41,17 +41,15 @@ namespace TreeViewSampleApp
 
         private void InitializeView()
         {
-            this.PropertyChanged += async (sender, args) => {
-                if (args.PropertyName == nameof(ComboBoxSelected))
-                {
-                    cts?.Cancel();
-                    await InitializeTreeView();
-                }
+            Combo.SelectionChanged += async (sender, args) => {
+                cts?.Cancel();
+                await InitializeTreeView();
             };
         }
 
         private const int DELAY_LIST = 10;
         private const int DELAY_POINT = 15;
+        private const int DELAY_CLEAR = 25;
 
 
         #region Properties
@@ -114,8 +112,6 @@ namespace TreeViewSampleApp
 
         private async Task InitializeTreeView()
         {
-            Tree.RootNodes.Clear();
-            await Task.Delay(50);
             this.cts = new CancellationTokenSource();
             await FillNodeListWithData(Tree.RootNodes, this.ComboBoxSelected, cts.Token);
         }
@@ -140,11 +136,15 @@ namespace TreeViewSampleApp
 
         private async Task<bool> FillNodeListWithData(IList<MUXC.TreeViewNode> targetList, CheckList parent, CancellationToken token)
         {
+            targetList.Clear();
+            await Task.Delay(DELAY_CLEAR);
+
             foreach(CheckList c1 in DataStorage.Singleton.getListsbyFilter(parent.List_ID))
             {
                 if (token.IsCancellationRequested)
                 {
                     targetList.Clear();
+                    await Task.Delay(DELAY_CLEAR);
                     return false;
                 }
                 targetList.Add(CreateListNode(c1));
@@ -156,6 +156,7 @@ namespace TreeViewSampleApp
                 if (token.IsCancellationRequested)
                 {
                     targetList.Clear();
+                    await Task.Delay(DELAY_CLEAR);
                     return false;
                 }
                 targetList.Add(CreatePointNode(c2));

@@ -44,17 +44,15 @@ namespace TreeViewSampleApp
         private void InitializeView()
         {
             MainList.ItemsSource = new ObservableCollection<ModelBase>();
-            this.PropertyChanged += async (sender, args) => {
-                if (args.PropertyName == nameof(ComboBoxSelected))
-                {
-                    cts?.Cancel();
-                    await InitializeListView();
-                }
+            Combo.SelectionChanged += async (sender, args) => {
+                cts?.Cancel();
+                await InitializeListView();
             };
         }
 
         private const int DELAY_LIST = 10;
         private const int DELAY_POINT = 15;
+        private const int DELAY_CLEAR = 25;
 
 
         #region Properties
@@ -117,8 +115,6 @@ namespace TreeViewSampleApp
 
         private async Task InitializeListView()
         {
-            ((System.Collections.IList)MainList.ItemsSource).Clear();
-            await Task.Delay(50);
             this.cts = new CancellationTokenSource();
             await FillListWithData((IList<ModelBase>)MainList.ItemsSource, this.ComboBoxSelected, cts.Token);
         }
@@ -127,11 +123,15 @@ namespace TreeViewSampleApp
 
         private async Task<bool> FillListWithData(IList<ModelBase> targetList, CheckList parent, CancellationToken token)
         {
-            foreach(CheckList c1 in DataStorage.Singleton.getListsbyFilter(parent.List_ID))
+            targetList.Clear();
+            await Task.Delay(DELAY_CLEAR);
+
+            foreach (CheckList c1 in DataStorage.Singleton.getListsbyFilter(parent.List_ID))
             {
                 if (token.IsCancellationRequested)
                 {
                     targetList.Clear();
+                    await Task.Delay(DELAY_CLEAR);
                     return false;
                 }
                 targetList.Add(c1);
@@ -143,6 +143,7 @@ namespace TreeViewSampleApp
                 if (token.IsCancellationRequested)
                 {
                     targetList.Clear();
+                    await Task.Delay(DELAY_CLEAR);
                     return false;
                 }
                 targetList.Add(c2);

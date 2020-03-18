@@ -91,7 +91,7 @@
         <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Select a List in the Combobox. Then, while the contents are loading, switch the selection to another Combobox."/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Selection: "/>
-        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{x:Bind ComboBoxOptions, Mode=OneWay}" SelectedItem="{x:Bind ComboBoxSelected, Mode=TwoWay}">
+        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{x:Bind ComboBoxOptions, Mode=OneWay}" SelectedItem="{x:Bind ComboBoxSelected, Mode=TwoWay}" SelectionChangedTrigger="Committed">
             <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="models:CheckList">
                     <TextBlock Text="{x:Bind ListName}"/>
@@ -100,9 +100,9 @@
         </ComboBox>
         <Button Grid.Row="1" Grid.Column="2" Content="Switch to TreeView" Click="TreeViewButton_Click"/>
 
-        <ListView x:Name="MainList"
-                       Grid.Row="2"
-                       Grid.ColumnSpan="3"
-                       ItemTemplateSelector="{StaticResource Selector}"/>
+        <muxc:ScrollViewer Grid.Row="2" Grid.ColumnSpan="3">
+            <ListView x:Name="MainList"
+                      ItemTemplateSelector="{StaticResource Selector}"/>
+        </muxc:ScrollViewer>
     </Grid>
 </Page>
