@@ -100,9 +100,7 @@
         </ComboBox>
         <Button Grid.Row="1" Grid.Column="2" Content="Switch to TreeView" Click="TreeViewButton_Click"/>
 
-        <muxc:ScrollViewer Grid.Row="2" Grid.ColumnSpan="3">
-            <ListView x:Name="MainList"
-                      ItemTemplateSelector="{StaticResource Selector}"/>
-        </muxc:ScrollViewer>
+        <ScrollViewer x:Name="WrapViewer" Grid.Row="2" Grid.ColumnSpan="3">
+        </ScrollViewer>
     </Grid>
 </Page>

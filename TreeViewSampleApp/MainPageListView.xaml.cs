@@ -43,7 +43,6 @@ namespace TreeViewSampleApp
 
         private void InitializeView()
         {
-            MainList.ItemsSource = new ObservableCollection<ModelBase>();
             Combo.SelectionChanged += async (sender, args) => {
                 cts?.Cancel();
                 await InitializeListView();
@@ -67,6 +66,7 @@ namespace TreeViewSampleApp
         private List<CheckList> ComboBoxOptions = DataStorage.Singleton.getListsbyFilter(null);
 
         private CancellationTokenSource cts;
+        private ListView MainList;
 
         private CheckList _comboBoxSelected = null;
         private CheckList ComboBoxSelected
@@ -115,6 +115,21 @@ namespace TreeViewSampleApp
 
         private async Task InitializeListView()
         {
+            MainList = new ListView();
+            MainList.ItemsSource = new ObservableCollection<ModelBase>();
+            object resource;
+            this.Resources.TryGetValue("Selector", out resource);
+            if(resource is ListViewItemTemplateSelector selector)
+            {
+                MainList.ItemTemplateSelector = selector;
+            }
+            else
+            {
+                Debug.WriteLine("Selector is no ListViewItemTemplateSelector!");
+            }
+            WrapViewer.Content = MainList;
+            
+
             this.cts = new CancellationTokenSource();
             await FillListWithData((IList<ModelBase>)MainList.ItemsSource, this.ComboBoxSelected, cts.Token);
         }

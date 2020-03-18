@@ -64,6 +64,7 @@ namespace TreeViewSampleApp
         private List<CheckList> ComboBoxOptions = DataStorage.Singleton.getListsbyFilter(null);
 
         private CancellationTokenSource cts;
+        private MUXC.TreeView Tree;
 
         private CheckList _comboBoxSelected = null;
         private CheckList ComboBoxSelected
@@ -112,6 +113,21 @@ namespace TreeViewSampleApp
 
         private async Task InitializeTreeView()
         {
+            Tree = new MUXC.TreeView();
+            object resource;
+            this.Resources.TryGetValue("Selector", out resource);
+            if (resource is TreeViewItemTemplateSelector selector)
+            {
+                Tree.ItemTemplateSelector = selector;
+            }
+            else
+            {
+                Debug.WriteLine("Selector is no TreeViewItemTemplateSelector!");
+            }
+            Tree.Expanding += Tree_Expanding;
+            Tree.Collapsed += Tree_Collapsed;
+            WrapViewer.Content = Tree;
+
             this.cts = new CancellationTokenSource();
             await FillNodeListWithData(Tree.RootNodes, this.ComboBoxSelected, cts.Token);
         }
