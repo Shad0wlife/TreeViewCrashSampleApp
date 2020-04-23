@@ -21,13 +21,13 @@
         <!-- Debugging Templates for crash free execution -->
         <DataTemplate x:Key="ListNodeTemplate" x:DataType="basemodels:ModelBase">
             <ListViewItem HorizontalContentAlignment="Stretch" RightTapped="ListViewItem_RightTapped">
-                <TextBlock Text="{x:Bind MyType, Mode=OneWay}"/>
+                <TextBlock Text="{Binding MyType, Mode=OneWay}"/>
             </ListViewItem>
         </DataTemplate>
 
         <DataTemplate x:Key="PointNodeTemplate" x:DataType="basemodels:ModelBase">
             <ListViewItem HorizontalContentAlignment="Stretch" RightTapped="ListViewItem_RightTapped">
-                <TextBox Text="{x:Bind MyType, Mode=OneWay}" IsReadOnly="True"/>
+                <TextBox Text="{Binding MyType, Mode=OneWay}" IsReadOnly="True"/>
             </ListViewItem>
         </DataTemplate>
 
@@ -91,10 +91,10 @@
         <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Select a List in the Combobox. Then, while the contents are loading, switch the selection to another Combobox."/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Selection: "/>
-        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{x:Bind ComboBoxOptions, Mode=OneWay}" SelectedItem="{x:Bind ComboBoxSelected, Mode=TwoWay}" SelectionChangedTrigger="Committed">
+        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{Binding ComboBoxOptions}" SelectedItem="{Binding ComboBoxSelected, Mode=TwoWay}" SelectionChangedTrigger="Committed">
             <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="models:CheckList">
-                    <TextBlock Text="{x:Bind ListName}"/>
+                    <TextBlock Text="{Binding ListName}"/>
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>

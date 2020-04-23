@@ -30,47 +30,7 @@ namespace DataLibrary.DataAccess
 
         private DataStorage()
         {
-            const int numSelections = 3;
-            const int numElemsLarge = 80;
-            const int numElemsSmall = 5;
-
-            int mainNum;
-            for (mainNum = 0; mainNum < numSelections; mainNum++)
-            {
-                checkLists.Add(new CheckList() { List_ID = mainNum, ListName = "List" + mainNum, ParentList = null });
-            }
-
-            int cntList = mainNum;
-            for (int main = 0; main < mainNum-1; main++) {
-                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
-                {
-                    checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = main });
-                    cntList++;
-                }
-            }
-
-            int cntPoint = 0;
-            for (int main = 0; main < mainNum - 1; main++)
-            {
-                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
-                {
-                    checkPoints.Add(new CheckPoint() { List_ID = main, PointName = "Point"+cntPoint, PointDescription="PointDesc "+cntPoint });
-                    cntPoint++;
-                }
-            }
-
-            //One Selection with few elements
-            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
-            {
-                checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = mainNum-1 });
-                cntList++;
-            }
-
-            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
-            {
-                checkPoints.Add(new CheckPoint() { List_ID = mainNum-1, PointName = "Point" + cntPoint, PointDescription = "PointDesc " + cntPoint });
-                cntPoint++;
-            }
+            resetContents();
         }
 
         public List<CheckList> checkLists = new List<CheckList>();
@@ -84,6 +44,57 @@ namespace DataLibrary.DataAccess
         public List<CheckPoint> getPointsbyFilter(long? parent)
         {
             return checkPoints.FindAll((p) => { return p.List_ID == parent; });
+        }
+
+        public void resetContents()
+        {
+            checkLists.Clear();
+            checkLists = new List<CheckList>();
+            checkPoints.Clear();
+            checkPoints = new List<CheckPoint>();
+
+            const int numSelections = 3;
+            const int numElemsLarge = 80;
+            const int numElemsSmall = 5;
+
+            int mainNum;
+            for (mainNum = 0; mainNum < numSelections; mainNum++)
+            {
+                checkLists.Add(new CheckList() { List_ID = mainNum, ListName = "List" + mainNum, ParentList = null });
+            }
+
+            int cntList = mainNum;
+            for (int main = 0; main < mainNum - 1; main++)
+            {
+                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
+                {
+                    checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = main });
+                    cntList++;
+                }
+            }
+
+            int cntPoint = 0;
+            for (int main = 0; main < mainNum - 1; main++)
+            {
+                for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
+                {
+                    checkPoints.Add(new CheckPoint() { List_ID = main, PointName = "Point" + cntPoint, PointDescription = "PointDesc " + cntPoint });
+                    cntPoint++;
+                }
+            }
+
+            //One Selection with few elements
+            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
+            {
+                checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = mainNum - 1 });
+                cntList++;
+            }
+
+            for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
+            {
+                checkPoints.Add(new CheckPoint() { List_ID = mainNum - 1, PointName = "Point" + cntPoint, PointDescription = "PointDesc " + cntPoint });
+                cntPoint++;
+            }
         }
     }
 }

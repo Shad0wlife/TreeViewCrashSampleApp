@@ -11,6 +11,7 @@
     xmlns:mtkc="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:util="using:TreeViewSampleApp.Util"
     mc:Ignorable="d"
+    Unloaded="Page_Unloaded"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
@@ -19,20 +20,22 @@
         </DataTemplate>
         
         <!-- Debugging Templates for crash free execution -->
+        <!--
         <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
-                <TextBlock Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
+                <TextBlock Text="{Binding Content.MyType, Mode=OneWay}"/>
             </muxc:TreeViewItem>
         </DataTemplate>
 
         <DataTemplate x:Key="PointNodeTemplate" x:DataType="muxc:TreeViewNode">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
-                <TextBox Text="{x:Bind ((basemodels:ModelBase)Content).MyType, Mode=OneWay}"/>
+                <TextBox Text="{Binding Content.MyType, Mode=OneWay}"/>
             </muxc:TreeViewItem>
         </DataTemplate>
+        -->
 
         <!-- Real Templates-->
-        <!--
+        
         <DataTemplate x:Key="ListNodeTemplate" x:DataType="muxc:TreeViewNode">
             <muxc:TreeViewItem RightTapped="TreeViewItem_RightTapped" HorizontalContentAlignment="Stretch">
                 <TextBlock Text="{x:Bind ((models:CheckList)Content).ListName, Mode=OneWay}"/>
@@ -68,7 +71,7 @@
                 </mtkc:Expander>
             </muxc:TreeViewItem>
         </DataTemplate>
-        -->
+        
 
         <util:TreeViewItemTemplateSelector x:Key="Selector"
                                             DefaultTemplate="{StaticResource FallbackTemplate}"
@@ -91,10 +94,10 @@
         <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Select a List in the Combobox. Then, while the contents are loading, switch the selection to another Combobox."/>
 
         <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Selection: "/>
-        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{x:Bind ComboBoxOptions, Mode=OneWay}" SelectedItem="{x:Bind ComboBoxSelected, Mode=TwoWay}">
+        <ComboBox x:Name="Combo" Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="150" ItemsSource="{Binding ComboBoxOptions, Mode=OneWay}" SelectedItem="{Binding ComboBoxSelected, Mode=TwoWay}" SelectionChanged="Combo_SelectionChanged">
             <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="models:CheckList">
-                    <TextBlock Text="{x:Bind ListName}"/>
+                    <TextBlock Text="{Binding ListName}"/>
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>

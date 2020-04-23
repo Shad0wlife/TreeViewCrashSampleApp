@@ -34,6 +34,7 @@ namespace TreeViewSampleApp
     {
         public MainPage()
         {
+            this.DataContext = this;
             this.InitializeComponent();
 
             this.InitializeView();
@@ -41,10 +42,7 @@ namespace TreeViewSampleApp
 
         private void InitializeView()
         {
-            Combo.SelectionChanged += async (sender, args) => {
-                cts?.Cancel();
-                await InitializeTreeView();
-            };
+
         }
 
         private const int DELAY_LIST = 10;
@@ -61,13 +59,13 @@ namespace TreeViewSampleApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private List<CheckList> ComboBoxOptions = DataStorage.Singleton.getListsbyFilter(null);
+        public List<CheckList> ComboBoxOptions { get; } = DataStorage.Singleton.getListsbyFilter(null);
 
         private CancellationTokenSource cts;
         private MUXC.TreeView Tree;
 
         private CheckList _comboBoxSelected = null;
-        private CheckList ComboBoxSelected
+        public CheckList ComboBoxSelected
         {
             get
             {
@@ -113,6 +111,28 @@ namespace TreeViewSampleApp
 
         private async Task InitializeTreeView()
         {
+            if(Combo.SelectedItem == null)
+            {
+                return;
+            }
+            if(Tree != null)
+            {
+                foreach(MUXC.TreeViewNode node in Tree.RootNodes)
+                {
+                    if(node.Content is MUXC.TreeViewItem item)
+                    {
+                        Debug.WriteLine("Clearing TreeViewItem");
+                        item.ClearValue(MUXC.TreeViewItem.ContentProperty);
+                        item.ClearValue(MUXC.TreeViewItem.ContentTemplateProperty);
+                        item.DataContext = null;
+                    }
+                    node.ClearValue(MUXC.TreeViewNode.ContentProperty);
+                }
+                Tree.RootNodes.Clear();
+            }
+
+            DataStorage.Singleton.resetContents();
+
             Tree = new MUXC.TreeView();
             object resource;
             this.Resources.TryGetValue("Selector", out resource);
@@ -282,5 +302,30 @@ namespace TreeViewSampleApp
 
         #endregion
 
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (Tree != null)
+            {
+                foreach (MUXC.TreeViewNode node in Tree.RootNodes)
+                {
+                    if (node.Content is MUXC.TreeViewItem item)
+                    {
+                        item.ClearValue(MUXC.TreeViewItem.ContentProperty);
+                        item.ClearValue(MUXC.TreeViewItem.ContentTemplateProperty);
+                        item.DataContext = null;
+                    }
+                    node.ClearValue(MUXC.TreeViewNode.ContentProperty);
+                }
+                Tree.RootNodes.Clear();
+            }
+
+            this.DataContext = null;
+        }
+
+        private async void Combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            cts?.Cancel();
+            await InitializeTreeView();
+        }
     }
 }

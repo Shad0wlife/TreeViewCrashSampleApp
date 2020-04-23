@@ -36,8 +36,8 @@ namespace TreeViewSampleApp
     {
         public MainPageListView()
         {
+            this.DataContext = this;
             this.InitializeComponent();
-
             this.InitializeView();
         }
 
@@ -63,13 +63,19 @@ namespace TreeViewSampleApp
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private List<CheckList> ComboBoxOptions = DataStorage.Singleton.getListsbyFilter(null);
+        private List<CheckList> _cbo = DataStorage.Singleton.getListsbyFilter(null);
+        public List<CheckList> ComboBoxOptions { 
+            get
+            {
+                return _cbo;
+            } 
+        }
 
         private CancellationTokenSource cts;
-        private ListView MainList;
+        public ListView MainList;
 
         private CheckList _comboBoxSelected = null;
-        private CheckList ComboBoxSelected
+        public CheckList ComboBoxSelected
         {
             get
             {
@@ -115,6 +121,10 @@ namespace TreeViewSampleApp
 
         private async Task InitializeListView()
         {
+            if(MainList != null && MainList.ItemsSource != null)
+            {
+                ((System.Collections.IList)MainList.ItemsSource).Clear();
+            }
             MainList = new ListView();
             MainList.ItemsSource = new ObservableCollection<ModelBase>();
             object resource;
@@ -176,9 +186,9 @@ namespace TreeViewSampleApp
             if (!e.Handled)
             {
                 FrameworkElement target = (FrameworkElement)sender;
-                if (target is MUXC.TreeViewItem tvi)
+                if (target is ListViewItem lvi)
                 {
-                    ListViewItem item = MainList.SelectedItem as ListViewItem;
+                    MainList.SelectedItem = lvi;
                     UpdateSelectionProperties();
                 }
                 e.Handled = true;
