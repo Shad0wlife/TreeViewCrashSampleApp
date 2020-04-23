@@ -85,7 +85,7 @@
                 </DataTemplate>
             </ComboBox.ItemTemplate>
         </ComboBox>
-        <Button Grid.Row="1" Grid.Column="2" Content="Switch to Content Mode" Click="NodeModeButton_Click"/>
+        <Button Grid.Row="1" Grid.Column="2" Content="Switch to Node Mode" Click="NodeModeButton_Click"/>
 
         <ScrollViewer x:Name="WrapViewer" Grid.Row="2" Grid.ColumnSpan="3">
         </ScrollViewer>
