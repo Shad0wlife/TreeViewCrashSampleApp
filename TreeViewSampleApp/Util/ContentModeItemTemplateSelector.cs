@@ -9,10 +9,11 @@ using Windows.UI.Xaml;
 using DataLibrary.Models;
 using System.Diagnostics;
 using DataLibrary.Models.Base;
+using TreeViewSampleApp.Util.Wrappers;
 
 namespace TreeViewSampleApp.Util
 {
-    class ListViewItemTemplateSelector : DataTemplateSelector
+    class ContentModeItemTemplateSelector : DataTemplateSelector
     {
 
         public DataTemplate DefaultTemplate { get; set; }
@@ -20,19 +21,15 @@ namespace TreeViewSampleApp.Util
         public DataTemplate PointTemplate { get; set; }
         protected override DataTemplate SelectTemplateCore(object item)
         {
-            if (item is ModelBase node)
+            if (item is ListWrapper)
             {
-                Debug.Write("Selecting template: ");
-                if (node is CheckList)
-                {
-                    Debug.WriteLine("ListTemplate");
-                    return ListTemplate;
-                }
-                else if (node is CheckPoint)
-                {
-                    Debug.WriteLine("PointTemplate");
-                    return PointTemplate;
-                }
+                Debug.WriteLine("ListTemplate");
+                return ListTemplate;
+            }
+            else if (item is PointWrapper)
+            {
+                Debug.WriteLine("PointTemplate");
+                return PointTemplate;
             }
             return DefaultTemplate;
         }

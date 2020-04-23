@@ -53,9 +53,10 @@ namespace DataLibrary.DataAccess
             checkPoints.Clear();
             checkPoints = new List<CheckPoint>();
 
-            const int numSelections = 3;
-            const int numElemsLarge = 80;
+            const int numSelections = 2;
+            const int numElemsLarge = 10;
             const int numElemsSmall = 5;
+            const bool subStructure = true;
 
             int mainNum;
             for (mainNum = 0; mainNum < numSelections; mainNum++)
@@ -69,6 +70,18 @@ namespace DataLibrary.DataAccess
                 for (int cntLoop = 0; cntLoop < numElemsLarge; cntLoop++)
                 {
                     checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = main });
+
+                    if (subStructure)
+                    {
+                        int cntSubPoint = 0;
+                        for (int cntInnerLoop = 0; cntInnerLoop < numElemsSmall; cntInnerLoop++)
+                        {
+                            String name = "L" + cntList + " P" + cntSubPoint;
+                            checkPoints.Add(new CheckPoint() { List_ID = cntList, PointName = name, PointDescription = name + " Description" });
+                            cntSubPoint++;
+                        }
+                    }
+
                     cntList++;
                 }
             }
@@ -87,6 +100,18 @@ namespace DataLibrary.DataAccess
             for (int cntLoop = 0; cntLoop < numElemsSmall; cntLoop++)
             {
                 checkLists.Add(new CheckList() { List_ID = cntList, ListName = "List" + cntList, ParentList = mainNum - 1 });
+
+                if (subStructure)
+                {
+                    int cntSubPoint = 0;
+                    for (int cntInnerLoop = 0; cntInnerLoop < numElemsSmall; cntInnerLoop++)
+                    {
+                        String name = "L" + cntList + " P" + cntSubPoint;
+                        checkPoints.Add(new CheckPoint() { List_ID = cntList, PointName = name, PointDescription = name + " Description" });
+                        cntSubPoint++;
+                    }
+                }
+
                 cntList++;
             }
 

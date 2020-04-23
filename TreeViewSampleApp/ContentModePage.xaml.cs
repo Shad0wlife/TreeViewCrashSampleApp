@@ -2,6 +2,7 @@
 using DataLibrary.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using TreeViewSampleApp.Util;
-using TreeViewSampleApp.Util.Nodes;
+using TreeViewSampleApp.Util.Wrappers;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -30,9 +31,9 @@ namespace TreeViewSampleApp
     /// <summary>
     /// Eine leere Seite, die eigenständig verwendet oder zu der innerhalb eines Rahmens navigiert werden kann.
     /// </summary>
-    public sealed partial class MainPage : Page, INotifyPropertyChanged
+    public sealed partial class ContentModePage : Page, INotifyPropertyChanged
     {
-        public MainPage()
+        public ContentModePage()
         {
             this.DataContext = this;
             this.InitializeComponent();
@@ -130,13 +131,13 @@ namespace TreeViewSampleApp
             Tree = new MUXC.TreeView();
             object resource;
             this.Resources.TryGetValue("Selector", out resource);
-            if (resource is TreeViewItemTemplateSelector selector)
+            if (resource is ContentModeItemTemplateSelector selector)
             {
                 Tree.ItemTemplateSelector = selector;
             }
             else
             {
-                Debug.WriteLine("Selector is no TreeViewItemTemplateSelector!");
+                Debug.WriteLine("Selector is no ContentModeItemTemplateSelector!");
             }
             Tree.Expanding += Tree_Expanding;
             Tree.Collapsed += Tree_Collapsed;
@@ -145,34 +146,19 @@ namespace TreeViewSampleApp
             Tree.AllowDrop = true;
             Tree.CanDragItems = false;
             Tree.CanReorderItems = true;
+            Tree.ItemsSource = new ObservableCollection<WrapperBase>();
 
             WrapViewer.Content = Tree;
 
             this.rootCts = new CancellationTokenSource();
             this.rootToken = rootCts.Token;
 
-            await FillNodeListWithData(Tree.RootNodes, this.ComboBoxSelected, rootCts.Token);
+            await FillNodeListWithData((ObservableCollection<WrapperBase>)Tree.ItemsSource, this.ComboBoxSelected, rootCts.Token);
         }
 
         #region Filling
 
-        private CancellableTreeViewNode CreateListNode(CheckList list)
-        {
-            CancellableTreeViewNode newNode = new CancellableTreeViewNode();
-            newNode.Content = list;
-            newNode.HasUnrealizedChildren = true;
-            newNode.TokenSource = new CancellationTokenSource();
-            return newNode;
-        }
-
-        private MUXC.TreeViewNode CreatePointNode(CheckPoint point)
-        {
-            MUXC.TreeViewNode newNode = new MUXC.TreeViewNode();
-            newNode.Content = point;
-            return newNode;
-        }
-
-        private async Task<bool> FillNodeListWithData(IList<MUXC.TreeViewNode> targetList, CheckList parent, CancellationToken token)
+        private async Task<bool> FillNodeListWithData(IList<WrapperBase> targetList, CheckList parent, CancellationToken token)
         {
             targetList.Clear();
             await Task.Delay(CLEAR_DELAY);
@@ -196,7 +182,7 @@ namespace TreeViewSampleApp
                 await semaphore.WaitAsync();
                 try
                 {
-                    targetList.Add(CreateListNode(c1));
+                    targetList.Add(new ListWrapper(c1));
                     await Task.Delay(ADD_DELAY);
                 }
                 finally
@@ -224,7 +210,7 @@ namespace TreeViewSampleApp
                 await semaphore.WaitAsync();
                 try
                 {
-                    targetList.Add(CreatePointNode(c2));
+                    targetList.Add(new PointWrapper(c2));
                     await Task.Delay(ADD_DELAY);
                 }
                 finally
@@ -236,23 +222,23 @@ namespace TreeViewSampleApp
             return true;
         }
 
-        private async Task FillNode(MUXC.TreeViewNode node)
+        private async Task FillItem(ListWrapper item)
         {
-            if (node is CancellableTreeViewNode ctvn && node.Content is CheckList list && node.HasUnrealizedChildren)
+            if (item.HasUnrealizedChildren)
             {
-                CancellationToken token = ctvn.TokenSource.Token;
+                CancellationToken token = item.TokenSource.Token;
 
-                ctvn.IsWorking = true;
-                bool finished = await FillNodeListWithData(node.Children, list, token);
-                ctvn.IsWorking = false;
+                item.IsWorking = true;
+                bool finished = await FillNodeListWithData(item.Children, item.CheckList, token);
+                item.IsWorking = false;
 
                 if (finished)
                 {
-                    node.HasUnrealizedChildren = false;
+                    item.HasUnrealizedChildren = false;
                 }
                 else
                 {
-                    node.HasUnrealizedChildren = true;
+                    item.HasUnrealizedChildren = true;
                 }
             }
         }
@@ -263,26 +249,24 @@ namespace TreeViewSampleApp
 
         private async void Tree_Expanding(MUXC.TreeView sender, MUXC.TreeViewExpandingEventArgs args)
         {
-            if (args.Node.HasUnrealizedChildren)
+            if (args.Item is ListWrapper listWrapper && listWrapper.HasUnrealizedChildren)
             {
-                if (args.Node is CancellableTreeViewNode ctvn)
-                {
-                    ctvn.TokenSource = new CancellationTokenSource();
-                    ctvn.IsExpanded = true;
-                }
-                await FillNode(args.Node);
+                
+                listWrapper.TokenSource = new CancellationTokenSource();
+                listWrapper.Expanded = true;
+                await FillItem(listWrapper);
             }
         }
 
         private void Tree_Collapsed(MUXC.TreeView sender, MUXC.TreeViewCollapsedEventArgs args)
         {
-            if (args.Node is CancellableTreeViewNode ctvn)
+            if (args.Item is ListWrapper listWrapper)
             {
-                ctvn.TokenSource.Cancel();
-                ctvn.IsExpanded = false;
+                listWrapper.TokenSource.Cancel();
+                listWrapper.Expanded = false;
+                listWrapper.Children.Clear();
+                listWrapper.HasUnrealizedChildren = true;
             }
-            args.Node.Children.Clear();
-            args.Node.HasUnrealizedChildren = true;
         }
 
         private void TreeViewItem_RightTapped(object sender, RightTappedRoutedEventArgs e)
@@ -299,9 +283,9 @@ namespace TreeViewSampleApp
             }
         }
 
-        private void ContentModeButton_Click(object sender, RoutedEventArgs e)
+        private void NodeModeButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(ContentModePage));
+            this.Frame.Navigate(typeof(MainPage));
         }
 
         #endregion

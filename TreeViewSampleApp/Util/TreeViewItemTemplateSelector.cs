@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
 using DataLibrary.Models;
 using System.Diagnostics;
+using TreeViewSampleApp.Util.Nodes;
 
 namespace TreeViewSampleApp.Util
 {
@@ -21,15 +22,12 @@ namespace TreeViewSampleApp.Util
         {
             if (item is MUXC.TreeViewNode node)
             {
-                Debug.Write("Selecting template: ");
-                if (node.Content is CheckList)
+                if (item is CancellableTreeViewNode && node.Content is CheckList)
                 {
-                    Debug.WriteLine("ListTemplate");
                     return ListTemplate;
                 }
-                else if (node.Content is CheckPoint)
+                else if(node.Content is CheckPoint)
                 {
-                    Debug.WriteLine("PointTemplate");
                     return PointTemplate;
                 }
             }
